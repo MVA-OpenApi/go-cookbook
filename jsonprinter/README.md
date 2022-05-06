@@ -1,7 +1,7 @@
 # Installing Go and Cobra-CLI-Generator (system wide):
 
-go: https://go.dev/doc/install
-cobra-cli: go install github.com/spf13/cobra-cli@latest
+- go: https://go.dev/doc/install
+- cobra-cli: go install github.com/spf13/cobra-cli@latest
 
 # Initializing project
 
@@ -18,4 +18,4 @@ cobra-cli: go install github.com/spf13/cobra-cli@latest
 # Build and run CLI-Tool
 
 1. go build
-2. .\<tool_name>.exe (for Windows)
+2. .\\<tool_name>.exe (for Windows)
