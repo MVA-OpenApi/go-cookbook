@@ -18,31 +18,31 @@ func mainItemRoutes(e *echo.Echo) {
 	i.DELETE("/:item_id", deleteItemByID)
 }
 
-func getStore(c echo.Context) (*model.Store, error) {
+func getStoreIndex(c echo.Context) (int, error) {
 	storeId, err := uuid.Parse(c.Param("id"))
 	if err != nil {
-		return nil, c.String(http.StatusBadRequest, StoreBadRequest)
+		return -1, c.String(http.StatusBadRequest, StoreBadRequest)
 	}
 
-	store, err := model.GetStoreByID(storeId)
+	storeIndex, err := model.FindStoreIndex(storeId)
 	if err != nil {
-		return nil, c.String(http.StatusNotFound, StoreNotFound)
+		return -1, c.String(http.StatusNotFound, StoreNotFound)
 	}
 
-	return store, nil
+	return storeIndex, nil
 }
 
 func getAllItems(c echo.Context) error {
-	store, err := getStore(c)
+	storeIndex, err := getStoreIndex(c)
 	if err != nil {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, store.Items)
+	return c.JSON(http.StatusOK, model.GetStoreByIndex(storeIndex).Items)
 }
 
 func getItemByID(c echo.Context) error {
-	store, err := getStore(c)
+	storeIndex, err := getStoreIndex(c)
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func getItemByID(c echo.Context) error {
 		return c.String(http.StatusBadRequest, ItemBadRequest)
 	}
 
-	item, err := model.GetItemByStoreAndID(store, itemId)
+	item, err := model.GetItemByStoreAndID(storeIndex, itemId)
 	if err != nil {
 		return c.String(http.StatusNotFound, ItemNotFound)
 	}
@@ -61,7 +61,7 @@ func getItemByID(c echo.Context) error {
 }
 
 func postItem(c echo.Context) error {
-	store, err := getStore(c)
+	storeIndex, err := getStoreIndex(c)
 	if err != nil {
 		return err
 	}
@@ -74,13 +74,13 @@ func postItem(c echo.Context) error {
 		return c.String(http.StatusBadRequest, bErr.Error())
 	}
 
-	store.Items = append(store.Items, *newItem)
+	model.AddItemToStore(storeIndex, *newItem)
 
 	return c.String(http.StatusOK, ItemAdded)
 }
 
 func putItemByID(c echo.Context) error {
-	store, err := getStore(c)
+	storeIndex, err := getStoreIndex(c)
 	if err != nil {
 		return err
 	}
@@ -90,7 +90,7 @@ func putItemByID(c echo.Context) error {
 		return c.String(http.StatusBadRequest, ItemBadRequest)
 	}
 
-	for i, item := range store.Items {
+	for i, item := range model.GetStoreByIndex(storeIndex).Items {
 		if item.Id == itemId {
 			newItem := new(model.Item)
 			bErr := c.Bind(newItem)
@@ -98,13 +98,7 @@ func putItemByID(c echo.Context) error {
 				return c.String(http.StatusBadRequest, bErr.Error())
 			}
 
-			if newItem.Name != "" {
-				store.Items[i].Name = newItem.Name
-			}
-
-			if newItem.Price > 0 {
-				store.Items[i].Price = newItem.Price
-			}
+			model.UpdateItemInStore(storeIndex, i, *newItem)
 
 			return c.String(http.StatusOK, ItemUpdated)
 		}
@@ -114,7 +108,7 @@ func putItemByID(c echo.Context) error {
 }
 
 func deleteItemByID(c echo.Context) error {
-	store, err := getStore(c)
+	storeIndex, err := getStoreIndex(c)
 	if err != nil {
 		return err
 	}
@@ -124,9 +118,9 @@ func deleteItemByID(c echo.Context) error {
 		return c.String(http.StatusBadRequest, ItemBadRequest)
 	}
 
-	for i, item := range store.Items {
+	for i, item := range model.GetStoreByIndex(storeIndex).Items {
 		if item.Id == itemId {
-			store.Items = append(store.Items[:i], store.Items[i+1:]...)
+			model.DeleteItemFromStore(storeIndex, i)
 			return c.String(http.StatusOK, ItemDeleted)
 		}
 	}

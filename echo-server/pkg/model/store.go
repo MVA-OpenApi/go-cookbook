@@ -27,18 +27,22 @@ func InitDB() {
 	Stores[1].Items = append(Stores[1].Items, Item{Name: "C", Price: 42.0, Id: uuid.New()})
 }
 
-func GetStoreByID(id uuid.UUID) (*Store, error) {
-	for _, store := range Stores {
+func FindStoreIndex(id uuid.UUID) (int, error) {
+	for i, store := range Stores {
 		if store.Id == id {
-			return &store, nil
+			return i, nil
 		}
 	}
 
-	return nil, errors.New("no store found")
+	return -1, errors.New("no store found")
 }
 
-func GetItemByStoreAndID(store *Store, id uuid.UUID) (*Item, error) {
-	for _, item := range store.Items {
+func GetStoreByIndex(index int) *Store {
+	return &Stores[index]
+}
+
+func GetItemByStoreAndID(index int, id uuid.UUID) (*Item, error) {
+	for _, item := range Stores[index].Items {
 		if item.Id == id {
 			return &item, nil
 		}
@@ -47,11 +51,20 @@ func GetItemByStoreAndID(store *Store, id uuid.UUID) (*Item, error) {
 	return nil, errors.New("no item found")
 }
 
-func AddItemToStore(id uuid.UUID, item Item) {
-	for _, store := range Stores {
-		if store.Id == id {
-			store.Items = append(store.Items, item)
-			return
-		}
+func AddItemToStore(index int, item Item) {
+	Stores[index].Items = append(Stores[index].Items, item)
+}
+
+func UpdateItemInStore(storeIndex int, itemIndex int, item Item) {
+	if item.Name != "" {
+		Stores[storeIndex].Items[itemIndex].Name = item.Name
 	}
+
+	if item.Price > 0 {
+		Stores[storeIndex].Items[itemIndex].Price = item.Price
+	}
+}
+
+func DeleteItemFromStore(storeIndex int, itemIndex int) {
+	Stores[storeIndex].Items = append(Stores[storeIndex].Items[:itemIndex], Stores[storeIndex].Items[itemIndex+1:]...)
 }
