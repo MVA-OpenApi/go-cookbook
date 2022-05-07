@@ -30,12 +30,15 @@ type Cities struct {
 // @input: Array with strings, that have to be printed
 // @ouput: ./ouput/main.go file that can print the strings (either cities or names)
 func GenerateGoFile(strings []string, output_path string) {
+	//fmt.Println(output_path)
 	f := NewFile("main")
 	f.Func().Id("main").Params().Block(
-		Qual("fmt", "Println").Call(Lit(output_path)), // dont know why double slashes gets generated
-		Id("strings").Op(":=").Index().String().Values(LitFunc(func() interface{} {
-			return `"jo", "jo2"`
-		})),
+		//Qual("fmt", "Println").Call(Lit(output_path)), // dont know why double slashes gets generated
+		Id("strings").Op(":=").Index().String().ValuesFunc(func(g *Group) {
+			for i := 0; i < len(strings); i++ {
+				g.Lit(strings[i])
+			}
+		}),
 		For(
 			Id("i").Op(":=").Lit(0),
 			Id("i").Op("<").Lit(len(strings)),
