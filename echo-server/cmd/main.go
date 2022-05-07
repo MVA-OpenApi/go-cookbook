@@ -47,5 +47,37 @@ func main() {
 		return c.String(http.StatusNotFound, "No store found with given id.")
 	})
 
+	e.POST("/store", func(c echo.Context) error {
+		newStore := new(Store)
+		err := c.Bind(newStore)
+		newStore.Id = uuid.New()
+		newStore.Items = []Item{}
+
+		if err != nil {
+			return c.String(http.StatusBadRequest, err.Error())
+		}
+
+		stores = append(stores, *newStore)
+
+		return c.String(http.StatusOK, "Store added successfully.")
+	})
+
+	e.DELETE("/store/:id", func(c echo.Context) error {
+		storeId, err := uuid.Parse(c.Param("id"))
+
+		if err != nil {
+			return c.String(http.StatusBadRequest, "Invalid store id.")
+		}
+
+		for i, store := range stores {
+			if store.Id == storeId {
+				stores = append(stores[:i], stores[i+1:]...)
+				return c.String(http.StatusOK, "Store deleted successfully.")
+			}
+		}
+
+		return c.String(http.StatusNotFound, "No store found with given id.")
+	})
+
 	e.Logger.Fatal(e.Start(":1323"))
 }
