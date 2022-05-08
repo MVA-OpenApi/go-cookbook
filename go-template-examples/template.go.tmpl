@@ -1,0 +1,32 @@
+Objekt: {{.}}
+Name: {{.Name}}
+Type: {{.Type}}
+
+CallMethod: {{.PrintFunction}}
+CallMethod2: {{.PrintName}}
+
+DeleteWhiteSpaces: "     {{- .Name -}}     "
+
+InsertOtherTemplate: {{template "header"}}
+InsertOtherTemplate: {{template "header" .}}
+
+{{$firstVar := .Name}}
+The value of $firstVar is {{$firstVar}} 
+
+IterateNames: {{range .Name}}
+FirstName1: {{.}} 
+FirstName2: {{.}} {{end}}
+
+LengthOfName: {{len .Name}}
+ElementAtIndex0: {{index .Name 0}}
+ElementAtIndex1: {{index .Name 1}}
+
+{{if .Name}}
+Name is not empty
+{{end}}
+
+{{if lt .ID 3}}
+Name is less than 3
+{{else}}
+Name is greater or equal than 3
+{{end}}
