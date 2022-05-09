@@ -28,7 +28,6 @@ type Cities struct {
 }
 
 // @input: Array with strings, that have to be printed
-// @ouput: ./ouput/main.go file that can print the strings (either cities or names)
 func GenerateGoFile(strings []string, output_path string) {
 	//fmt.Println(output_path)
 	f := NewFile("main")
@@ -47,5 +46,8 @@ func GenerateGoFile(strings []string, output_path string) {
 			Qual("fmt", "Println").Call(Id("strings").Index(Id("i"))),	
 		),
 	)
-	fmt.Printf("%#v", f)
+	//fmt.Printf("type of f: %T\n", f)
+	f.Save(output_path + "main.go")
+	
 }
+

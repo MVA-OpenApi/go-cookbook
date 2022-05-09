@@ -55,9 +55,7 @@ For example: printer names ./input.json ./ouput/`,
 
 		json.Unmarshal(byteValue, &names)
 
-		fmt.Println(output_path) 
 		printer.GenerateGoFile(names.Names, output_path)
-
 	},
 }
 
