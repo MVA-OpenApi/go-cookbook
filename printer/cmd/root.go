@@ -10,13 +10,12 @@ import (
 	"io/ioutil"
 	"os"
 	printer "printer/src"
-
 	"github.com/spf13/cobra"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "printer",
+	Use:   "printer [property] [input file path] [output file path] [flags]",
 	Short: "A brief description of your application",
 	Long: `A longer description that spans multiple lines and likely contains
 examples and usage of using your application. For example:
@@ -32,17 +31,19 @@ to quickly create a Cobra application.`,
 var seperator string
 
 var namesCmd = &cobra.Command{
-	Use:   "names",
-	Short: "Print names from .json file",
-	Long: `Print names from .json file
-For example: printer names haha.json`,
-	Args: cobra.ExactArgs(1),
+	Use:   "names [input file path] [output file path] [flags]",
+	Short: "Create a main.go file that can print the names.",
+	Long: `Create a main.go file that can print the names from the input JSON-File.
+For example: printer names ./input.json ./ouput/`,
+	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		path := args[0]
-		if printer.CheckIfFileExists(path) != true {
+		input_path := args[0]
+		output_path := args[1]
+		if !printer.CheckIfFileExists(input_path) {
+			fmt.Println("No valid input file path given.")
 			return
 		}
-		jsonFile, err := os.Open(path)
+		jsonFile, err := os.Open(input_path)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -54,27 +55,23 @@ For example: printer names haha.json`,
 
 		json.Unmarshal(byteValue, &names)
 
-		for _, name := range names.Names {
-			fmt.Print(name)
-			fmt.Print(seperator)
-		}
-		fmt.Println()
-
+		printer.GenerateGoFile(names.Names, output_path)
 	},
 }
 
 var citiesCmd = &cobra.Command{
-	Use:   "cities",
-	Short: "Print cities from .json file",
-	Long: `Print cities from .json file
-For example: printer cities haha.json`,
-	Args: cobra.ExactArgs(1),
+	Use:   "cities [input file path] [output file path] [flags]",
+	Short: "Create a main.go file that can print the names.",
+	Long: `Create a main.go file that can print the names from the input JSON-File.
+For example: printer cities ./input.json ./ouput/`,
+	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
-		path := args[0]
-		if printer.CheckIfFileExists(path) != true {
+		input_path := args[0]
+		output_path := args[1]
+		if !printer.CheckIfFileExists(input_path) {
 			return
 		}
-		jsonFile, err := os.Open(path)
+		jsonFile, err := os.Open(input_path)
 		if err != nil {
 			fmt.Println(err)
 		}
@@ -86,11 +83,7 @@ For example: printer cities haha.json`,
 
 		json.Unmarshal(byteValue, &cities)
 
-		for _, city := range cities.Cities {
-			fmt.Print(city)
-			fmt.Print(seperator)
-		}
-		fmt.Println()
+		printer.GenerateGoFile(cities.Cities, output_path)
 	},
 }
 
